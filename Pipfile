@@ -8,6 +8,7 @@ dash = "*"
 pandas = "*"
 requests = "*"
 gunicorn = "*"
+dash-bootstrap-components = "*"
 
 [dev-packages]
 

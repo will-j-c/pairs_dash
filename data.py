@@ -16,6 +16,11 @@ class Data:
         pairs_df = pairs_df.tail(interval)
         return pairs_df
         
+    def create_axis_from_df(self, df):
+        index = df.index
+        start = index[0]
+        end = index[-1] + pd.Timedelta(hours=7)
+        return pd.date_range(start, end, freq='h')
 
     def _create_df_candles(self, symbol, resolution, ticker_type):
         candles = self._get_candles(symbol, resolution, ticker_type)
@@ -56,8 +61,3 @@ class Data:
     def _check_input_type(self, obj):
         if not isinstance(obj, str):
             raise TypeError(f'{obj} is not of the correct type. Should be a string.')
-
-
-if __name__ == '__main__':
-    data = Data()
-    data.create_pair_data('PF_SEIUSD', 'PF_POLUSD', '1h', 1)
