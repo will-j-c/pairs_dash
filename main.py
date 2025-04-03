@@ -9,6 +9,8 @@ data = Data()
 
 app = Dash()
 
+server = app.server
+
 app.layout = [
     dcc.RadioItems(list(config.keys()), list(
         config.keys())[0], id='radio-selection'),
