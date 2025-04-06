@@ -54,4 +54,9 @@ config = {
         'pair_2': 'PF_FILUSD',
         'beta': 0.0720625653084862,
     },
+        'INJ/RUNE': {
+        'pair_1': 'PF_INJUSD',
+        'pair_2': 'PF_RUNEUSD',
+        'beta': 4.45041100248462,
+    },
 }
