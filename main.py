@@ -35,7 +35,7 @@ app.layout = dbc.Container([
                        'align-items': 'flex-start'
                        },
             ),
-            dcc.Graph(id='graph-spread', responsive=True, style={'height': '75vh'})],
+            dcc.Graph(id='graph-spread', responsive=True, style={'height': '70vh'})],
     ),
     dcc.Interval(id='interval', interval=30000, n_intervals=0)
 ], style={'margin-top': 20})

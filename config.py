@@ -44,4 +44,14 @@ config = {
         'pair_2': 'PF_XRPUSD',
         'beta': 0.195226380622937,
     },
+        'CRV/ATOM': {
+        'pair_1': 'PF_CRVUSD',
+        'pair_2': 'PF_ATOMUSD',
+        'beta': 0.100713003992397,
+    },
+        'EOS/FIL': {
+        'pair_1': 'PF_EOSUSD',
+        'pair_2': 'PF_FILUSD',
+        'beta': 0.0720625653084862,
+    },
 }
