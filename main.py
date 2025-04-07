@@ -22,7 +22,7 @@ app.layout = dbc.Container([
         [
             html.Div(
                 [
-                    radio_items('Pairs', 'radio-selection', list(config.keys()), list(config.keys())[0]),
+                    radio_items('Pairs', 'radio-selection', sorted(list(config.keys())), sorted(list(config.keys()))[0]),
                     radio_items('Time View', 'time_view', [72, 144, 216], 216),
                     radio_items('Robust Spread Lag', 'lag', [24, 48, 72, 96, 120, 144], 144),
                     radio_items('Ticker Type', 'ticker_type', ['mark', 'spot', 'trade'], 'trade'),
@@ -71,6 +71,7 @@ def update_pairs(value, interval, lag, ticker_type, resolution, sigma):
     fig.add_hline(sigma, row=2, col=1, line_dash='dash', line_color='grey')
     fig.add_hline(-sigma, row=2, col=1, line_dash='dash', line_color='grey')
     fig.update_xaxes(range=[x_axis_labels[0], x_axis_labels[-1]])
+    fig.update_layout(title_text=f'Pair: {value}, Time View: {interval}, Spread Lag: {lag}, Resolution: {resolution}', title_font={'size': 20, 'weight': 600})
     return fig
 
 
