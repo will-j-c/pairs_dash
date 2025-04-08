@@ -32,7 +32,8 @@ app.layout = dbc.Container([
                 style={'textAlign': 'left',
                        'display': 'flex',
                        'justify-content': 'space-evenly',
-                       'align-items': 'flex-start'
+                       'align-items': 'flex-start',
+                       'font-size': '0.75em',
                        },
             ),
             dcc.Graph(id='graph-spread', responsive=True, style={'height': '70vh'})],
