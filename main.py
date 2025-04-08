@@ -23,8 +23,8 @@ app.layout = dbc.Container([
             html.Div(
                 [
                     radio_items('Pairs', 'radio-selection', sorted(list(config.keys())), sorted(list(config.keys()))[0]),
-                    radio_items('Time View', 'time_view', [72, 144, 216], 216),
-                    radio_items('Robust Spread Lag', 'lag', [24, 48, 72, 96, 120, 144], 144),
+                    radio_items('Time View', 'time_view', [72, 144, 216, 288, 360], 216),
+                    radio_items('Robust Spread Lag', 'lag', [24, 48, 72, 96, 120, 144, 168, 192], 144),
                     radio_items('Ticker Type', 'ticker_type', ['mark', 'spot', 'trade'], 'trade'),
                     radio_items('Resolution', 'resolution', ['15m', '30m', '1h', '4h', '12h', '1d'], '1h'),
                     radio_items('Sigma', 'sigma', [0.5, 1, 1.5, 2],  2),
