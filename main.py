@@ -2,10 +2,10 @@ from dash import Dash, dcc, html, callback, Output, Input, clientside_callback
 from plotly.subplots import make_subplots
 import dash_bootstrap_components as dbc
 from data import Data
-from config import config
+from helper import create_config_dict
 
 data = Data()
-
+config = create_config_dict()
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 server = app.server
