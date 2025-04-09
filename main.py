@@ -73,8 +73,6 @@ def update_pairs(value, interval, lag, ticker_type, resolution):
     fig.add_hline(-3, row=2, col=1, line_dash='dash', line_color='grey')
     fig.add_hline(1, row=2, col=1, line_dash='dash', line_color='grey')
     fig.add_hline(-1, row=2, col=1, line_dash='dash', line_color='grey')
-    fig.add_hline(1.5, row=2, col=1, line_dash='dash', line_color='grey')
-    fig.add_hline(-1.5, row=2, col=1, line_dash='dash', line_color='grey')
     fig.update_xaxes(range=[x_axis_labels[0], x_axis_labels[-1]])
     fig.update_layout(title_text=f'Pair: {value}, Time View: {interval}, Spread Lag: {lag}, Resolution: {resolution}', title_font={'size': 20, 'weight': 600})
     return fig
