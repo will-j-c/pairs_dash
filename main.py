@@ -51,7 +51,7 @@ app.layout = dbc.Container([
     Input('resolution', 'value'),
 )
 def update_graph(value, n_intervals, interval, lag, ticker_type, resolution):
-    return update_pairs(value, interval, lag, ticker_type, resolution, sigma)
+    return update_pairs(value, interval, lag, ticker_type, resolution)
 
 
 def update_pairs(value, interval, lag, ticker_type, resolution):
