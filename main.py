@@ -26,8 +26,7 @@ app.layout = dbc.Container([
                     radio_items('Time View', 'time_view', [72, 144, 216, 288, 360], 216),
                     radio_items('Robust Spread Lag', 'lag', [24, 48, 72, 96, 120, 144, 168, 192], 144),
                     radio_items('Ticker Type', 'ticker_type', ['mark', 'spot', 'trade'], 'trade'),
-                    radio_items('Resolution', 'resolution', ['15m', '30m', '1h', '4h', '12h', '1d'], '1h'),
-                    radio_items('Sigma', 'sigma', [0.5, 1, 1.5, 2],  2),
+                    radio_items('Resolution', 'resolution', ['15m', '30m', '1h', '4h', '12h', '1d'], '1h')
                 ],
                 style={'textAlign': 'left',
                        'display': 'flex',
@@ -50,13 +49,12 @@ app.layout = dbc.Container([
     Input('lag', 'value'),
     Input('ticker_type', 'value'),
     Input('resolution', 'value'),
-    Input('sigma', 'value'),
 )
-def update_graph(value, n_intervals, interval, lag, ticker_type, resolution, sigma):
+def update_graph(value, n_intervals, interval, lag, ticker_type, resolution):
     return update_pairs(value, interval, lag, ticker_type, resolution, sigma)
 
 
-def update_pairs(value, interval, lag, ticker_type, resolution, sigma):
+def update_pairs(value, interval, lag, ticker_type, resolution):
     entry = config[value]
     dff = data.create_pair_data(
         entry['pair_1'], entry['pair_2'], resolution, entry['beta'], interval, ticker_type, lag)
@@ -69,8 +67,14 @@ def update_pairs(value, interval, lag, ticker_type, resolution, sigma):
     fig.add_scatter(x=dff.index, y=dff['robust'],
                     row=2, col=1, showlegend=False, name='robust')
     fig.add_hline(0, row=2, col=1, line_dash='dash', line_color='grey')
-    fig.add_hline(sigma, row=2, col=1, line_dash='dash', line_color='grey')
-    fig.add_hline(-sigma, row=2, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(2, row=2, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(-2, row=2, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(3, row=2, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(-3, row=2, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(1, row=2, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(-1, row=2, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(1.5, row=2, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(-1.5, row=2, col=1, line_dash='dash', line_color='grey')
     fig.update_xaxes(range=[x_axis_labels[0], x_axis_labels[-1]])
     fig.update_layout(title_text=f'Pair: {value}, Time View: {interval}, Spread Lag: {lag}, Resolution: {resolution}', title_font={'size': 20, 'weight': 600})
     return fig
