@@ -12,6 +12,7 @@ class Data:
         pairs_df['uq'] = pairs_df['spread'].rolling(lag).quantile(0.75)
         pairs_df['lq'] = pairs_df['spread'].rolling(lag).quantile(0.25)
         pairs_df['robust'] = (pairs_df['spread'] - pairs_df['median']) / (pairs_df['uq'] - pairs_df['lq'])
+        pairs_df['z'] = (pairs_df['spread'] - pairs_df['spread'].rolling(lag).mean()) / pairs_df['spread'].rolling(lag).std()
         pairs_df.dropna(inplace=True)
         pairs_df = pairs_df.tail(interval)
         return pairs_df

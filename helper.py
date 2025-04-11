@@ -40,4 +40,4 @@ def create_config_dict():
     return config_dict
 
 if __name__ == '__main__':
-    create_config_dict()
+    pprint(create_config_dict())

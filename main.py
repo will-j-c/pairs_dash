@@ -59,10 +59,12 @@ def update_pairs(value, interval, lag, ticker_type, resolution):
     dff = data.create_pair_data(
         entry['pair_1'], entry['pair_2'], resolution, entry['beta'], interval, ticker_type, lag)
     x_axis_labels = list(data.create_axis_from_df(dff))
-    fig = make_subplots(rows=2, cols=1, shared_xaxes=True,
+    fig = make_subplots(rows=3, cols=1, shared_xaxes=True,
                         vertical_spacing=0.05)
     fig.add_scatter(x=dff.index, y=dff['spread'],
                     row=1, col=1, showlegend=False, name='spread')
+    fig.add_scatter(x=dff.index, y=dff['z'],
+                    row=3, col=1, showlegend=False, name='z')
     
     fig.add_scatter(x=dff.index, y=dff['robust'],
                     row=2, col=1, showlegend=False, name='robust')
