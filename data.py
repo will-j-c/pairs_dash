@@ -1,5 +1,7 @@
 from requests import get
 import pandas as pd
+import numpy as np
+import statsmodels.api as sm
 
 class Data:
     
@@ -16,6 +18,7 @@ class Data:
         pairs_df.dropna(inplace=True)
         pairs_df = pairs_df.tail(interval)
         return pairs_df
+    
         
     def create_axis_from_df(self, df):
         index = df.index

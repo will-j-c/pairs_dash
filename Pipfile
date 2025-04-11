@@ -9,6 +9,7 @@ pandas = "*"
 requests = "*"
 gunicorn = "*"
 dash-bootstrap-components = "*"
+statsmodels = "*"
 
 [dev-packages]
 

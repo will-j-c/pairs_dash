@@ -10,6 +10,7 @@ app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 server = app.server
 
+
 def radio_items(title, id, options, value):
     buttons = html.Div([
         html.H6(title),
@@ -17,16 +18,22 @@ def radio_items(title, id, options, value):
     ])
     return buttons
 
+
 app.layout = dbc.Container([
     html.Div(
         [
             html.Div(
                 [
-                    radio_items('Pairs', 'radio-selection', sorted(list(config.keys())), sorted(list(config.keys()))[0]),
-                    radio_items('Time View', 'time_view', [72, 144, 216, 288, 360], 216),
-                    radio_items('Robust Spread Lag', 'lag', [24, 48, 72, 96, 120, 144, 168, 192], 144),
-                    radio_items('Ticker Type', 'ticker_type', ['mark', 'spot', 'trade'], 'trade'),
-                    radio_items('Resolution', 'resolution', ['15m', '30m', '1h', '4h', '12h', '1d'], '1h')
+                    radio_items('Pairs', 'radio-selection',
+                                sorted(list(config.keys())), sorted(list(config.keys()))[0]),
+                    radio_items('Time View', 'time_view', [
+                                72, 144, 216, 288, 360], 216),
+                    radio_items('Lag', 'lag', [
+                                24, 48, 72, 96, 120, 144, 168, 192], 144),
+                    radio_items('Ticker Type', 'ticker_type', [
+                                'mark', 'spot', 'trade'], 'trade'),
+                    radio_items('Resolution', 'resolution', [
+                                '15m', '30m', '1h', '4h', '12h', '1d'], '1h')
                 ],
                 style={'textAlign': 'left',
                        'display': 'flex',
@@ -59,26 +66,29 @@ def update_pairs(value, interval, lag, ticker_type, resolution):
     dff = data.create_pair_data(
         entry['pair_1'], entry['pair_2'], resolution, entry['beta'], interval, ticker_type, lag)
     x_axis_labels = list(data.create_axis_from_df(dff))
-    fig = make_subplots(rows=3, cols=1, shared_xaxes=True,
+    fig = make_subplots(rows=3, cols=1, shared_xaxes=False,
                         vertical_spacing=0.05)
+    # Add the lines
     fig.add_scatter(x=dff.index, y=dff['spread'],
-                    row=1, col=1, showlegend=False, name='spread')
+                    row=2, col=1, showlegend=True, name='spread')
     fig.add_scatter(x=dff.index, y=dff['z'],
-                    row=3, col=1, showlegend=False, name='z')
-    
+                    row=1, col=1, showlegend=True, name='z')
     fig.add_scatter(x=dff.index, y=dff['robust'],
-                    row=2, col=1, showlegend=False, name='robust')
-    fig.add_hline(0, row=2, col=1, line_dash='dash', line_color='grey')
-    fig.add_hline(2, row=2, col=1, line_dash='dash', line_color='grey')
-    fig.add_hline(-2, row=2, col=1, line_dash='dash', line_color='grey')
-    fig.add_hline(3, row=2, col=1, line_dash='dash', line_color='grey')
-    fig.add_hline(-3, row=2, col=1, line_dash='dash', line_color='grey')
-    fig.add_hline(1, row=2, col=1, line_dash='dash', line_color='grey')
-    fig.add_hline(-1, row=2, col=1, line_dash='dash', line_color='grey')
-    fig.update_xaxes(range=[x_axis_labels[0], x_axis_labels[-1]])
-    fig.update_layout(title_text=f'Pair: {value}, Time View: {interval}, Spread Lag: {lag}, Resolution: {resolution}', title_font={'size': 20, 'weight': 600})
-    return fig
+                    row=1, col=1, showlegend=True, name='robust')
+    
+    # Add the horizontal lines
+    fig.add_hline(0, row=1, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(2, row=1, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(-2, row=1, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(3, row=1, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(-3, row=1, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(1, row=1, col=1, line_dash='dash', line_color='grey')
+    fig.add_hline(-1, row=1, col=1, line_dash='dash', line_color='grey')
 
+    fig.update_xaxes(range=[x_axis_labels[0], x_axis_labels[-1]])
+    fig.update_layout(title_text=f'Pair: {value}, Time View: {interval}, Spread Lag: {lag}, Resolution: {resolution}', title_font={
+                      'size': 20, 'weight': 600})
+    return fig
 
 
 if __name__ == '__main__':
