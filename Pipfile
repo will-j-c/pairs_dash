@@ -10,6 +10,7 @@ requests = "*"
 gunicorn = "*"
 dash-bootstrap-components = "*"
 statsmodels = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

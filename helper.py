@@ -1,5 +1,9 @@
 import csv
 from pprint import pprint
+import hashlib
+import hmac
+import base64
+import urllib.parse
 
 def create_entries_list():
     entries = []
@@ -38,6 +42,38 @@ def create_config_dict():
         'beta': float(entry[4]),
         }
     return config_dict
+
+def create_post_data(data):
+    return urllib.parse.urlencode(data)
+
+
+def authentication_function(post_data, endpoint, api_secret):
+
+    # concatenate post data and enpoint
+    concatenated_string = (post_data + endpoint)
+
+    # hash the output
+    sha256_hash_result = hashlib.sha256(
+        concatenated_string.encode('utf8')).digest()
+
+    # base decode the api secret
+    decoded_api_seccret = base64.b64decode(api_secret)
+
+    # use decoded secret as key for hmac
+    hmac_sha512 = hmac.new(decoded_api_seccret,
+                           sha256_hash_result, hashlib.sha512).digest()
+    APISign = base64.b64encode(hmac_sha512).decode()
+
+    return APISign
+
+
+def get_headers(api_key, authent):
+    return {
+        'Accept': 'application/json',
+        'APIKey': api_key,
+        'Authent': authent
+    }
+
 
 if __name__ == '__main__':
     pprint(create_config_dict())

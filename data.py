@@ -1,6 +1,14 @@
 from requests import get
 import pandas as pd
 import numpy as np
+from helper import authentication_function, get_headers, create_post_data
+from dotenv import load_dotenv
+import os
+
+load_dotenv(override=True)
+
+api_key = os.getenv('PUBLIC_KEY')
+secret = os.getenv('SECRET')
 
 class Data:
     
@@ -59,8 +67,97 @@ class Data:
             return data['candles']
         else:
             raise ValueError('The API returned an empty set of data')
+    
+    def _get_open_positions(self):
+        base_url = 'https://futures.kraken.com/derivatives'
+        endpoint = '/api/v3/openpositions'
+        data = self._authenticated_call_api(endpoint, base_url, api_key, secret)
+        if data['result'] == 'success':
+            return data
+        raise ValueError(f'Error: {data['error']}')
 
+    def _get_wallets(self):
+        base_url = 'https://futures.kraken.com/derivatives'
+        endpoint = '/api/v3/accounts'
+        data = self._authenticated_call_api(endpoint, base_url, api_key, secret)
+        if data['result'] == 'success':
+            return data
+        raise ValueError(f'Error: {data['error']}')
 
     def _check_input_type(self, obj):
         if not isinstance(obj, str):
             raise TypeError(f'{obj} is not of the correct type. Should be a string.')
+    
+    def _authenticated_call_api(self, endpoint, base_url, api_key, api_secret, data=''):
+        url = base_url + endpoint
+        post_data = create_post_data(data)
+        authent = authentication_function(post_data, endpoint, api_secret)
+        headers = get_headers(api_key, authent)
+        r = get(url, headers=headers, data=data)
+        data_to_return = r.json()
+        r.close()
+        return data_to_return
+    
+    def _get_tickers(self):
+        data = self._call_api('https://futures.kraken.com/derivatives/api/v3/tickers')
+        if data['result'] == 'success':
+            return data['tickers']
+        raise ValueError(f'Error: {data['error']}')
+    
+    def get_position_info(self, config):
+        position_df = self._create_position_df(config)
+        config_df = self._create_config_df(config)
+        ticker_df = self._create_ticker_df()
+        df = pd.merge(position_df, config_df, left_on='symbol', right_on='value')
+        df.drop(['value', 'variable'], axis=1, inplace=True)
+        df = pd.merge(df, ticker_df, left_on='symbol', right_on='symbol')
+        df = df[['side', 'symbol', 'price', 'size', 'position', 'markPrice']]
+        df['pnl'] = df.apply(self._calc_pnl, axis=1)
+        df['closing_fee'] = df['size'] * df['markPrice'] * 0.05/100
+        df['estimated_net_pnl'] = df['pnl'] - df['closing_fee']
+        df = df[['position', 'pnl', 'closing_fee', 'estimated_net_pnl']]
+        df = df.groupby('position', as_index=False).sum()
+        df.columns = ['Position', 'P&L', 'Est. Fee', 'Net P&L']
+        df = df.round(2)
+        return df
+    
+    def get_collateral_value(self):
+        return float(self._get_wallets()['accounts']['flex']['collateralValue'])
+
+    def _create_position_df(self, config):
+        position_data = self._get_open_positions()['openPositions']
+        strategy_symbols = [value['pair_1'] for value in config.values()] + [value['pair_2'] for value in config.values()]
+        df = pd.DataFrame(position_data)
+        mask = df['symbol'].isin(strategy_symbols)
+        df = df[mask]
+        return df
+
+    def _create_config_df(self, config):
+        df = pd.DataFrame.from_dict(config).T
+        df.drop('beta', inplace=True, axis=1)
+        df['position'] = df.index
+        df.reset_index(inplace=True, drop=True)
+        df = pd.melt(df, id_vars=['position'], value_vars=['pair_1', 'pair_2'])
+        return df
+    
+    def _create_ticker_df(self):
+        tickers = self._get_tickers()
+        df = pd.DataFrame.from_dict(tickers)
+        return df
+    
+    def _calc_pnl(self, row):
+        cost = row['price'] * row['size']
+        current_value = row['markPrice'] * row['size']
+        pnl = 0
+        if row['side'] == 'long':
+            pnl = current_value - cost
+        else:
+            pnl = cost - current_value
+        return pnl
+
+    
+if __name__ == '__main__':
+    from helper import create_config_dict
+    data = Data()
+    config = create_config_dict()
+    data.get_position_info(config)

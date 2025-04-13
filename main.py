@@ -1,4 +1,4 @@
-from dash import Dash, dcc, html, callback, Output, Input, clientside_callback
+from dash import Dash, dcc, html, callback, Output, Input, dash_table
 from plotly.subplots import make_subplots
 import dash_bootstrap_components as dbc
 from data import Data
@@ -10,7 +10,6 @@ app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 server = app.server
 
-
 def radio_items(title, id, options, value):
     buttons = html.Div([
         html.H6(title),
@@ -18,6 +17,22 @@ def radio_items(title, id, options, value):
     ])
     return buttons
 
+
+def table():
+    df = data.get_position_info(config)
+    table = dash_table.DataTable(df.to_dict('records'), 
+                                 columns=[{'name': i, 'id': i} for i in df.columns],
+                                 editable=False,
+                                 id='table',
+                                 style_cell={'textAlign': 'left'}
+                                 )
+    
+    return html.Div([table])
+
+def stop_string():
+    stop_loss =  data.get_collateral_value() * 0.02
+    string = '{0:.2f}'.format(-stop_loss)
+    return 'Stop loss at: ' + string
 
 app.layout = dbc.Container([
     html.Div(
@@ -42,10 +57,15 @@ app.layout = dbc.Container([
                        'font-size': '0.75em',
                        },
             ),
-            dcc.Graph(id='graph-spread', responsive=True, style={'height': '70vh'})],
+            dcc.Graph(id='graph-spread', responsive=True,
+                      style={'height': '65vh'}),
+            html.H4(stop_string(), id='stop'),
+            table()], 
     ),
-    dcc.Interval(id='interval', interval=30000, n_intervals=0)
-], style={'margin-top': 20})
+
+    dcc.Interval(id='interval', interval=30000, n_intervals=0),
+    dcc.Interval(id='interval2', interval=10000, n_intervals=0)
+], style={'margin-top': 20, 'height': '100vh'})
 
 
 @callback(
@@ -61,6 +81,21 @@ def update_graph(value, n_intervals, interval, lag, ticker_type, resolution):
     return update_pairs(value, interval, lag, ticker_type, resolution)
 
 
+@callback(
+    Output('table', 'data'),
+    Input('interval2', 'n_intervals'),
+)
+def update_table(n_intervals):
+    df = data.get_position_info(config)
+    return df.to_dict('records')
+
+@callback(
+    Output('stop', 'children'),
+    Input('interval2', 'n_intervals'),
+)
+def update_stop(n_intervals):
+    return stop_string()
+
 def update_pairs(value, interval, lag, ticker_type, resolution):
     entry = config[value]
     dff = data.create_pair_data(
@@ -75,7 +110,7 @@ def update_pairs(value, interval, lag, ticker_type, resolution):
                     row=1, col=1, showlegend=True, name='z')
     fig.add_scatter(x=dff.index, y=dff['robust'],
                     row=1, col=1, showlegend=True, name='robust')
-    
+
     # Add the horizontal lines
     fig.add_hline(0, row=1, col=1, line_dash='dash', line_color='grey')
     fig.add_hline(2, row=1, col=1, line_dash='dash', line_color='grey')
