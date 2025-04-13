@@ -74,7 +74,7 @@ class Data:
         data = self._authenticated_call_api(endpoint, base_url, api_key, secret)
         if data['result'] == 'success':
             return data
-        raise ValueError(f'Error: {data['error']}')
+        raise ValueError(f'Error: {data["error"]}')
 
     def _get_wallets(self):
         base_url = 'https://futures.kraken.com/derivatives'
@@ -82,7 +82,7 @@ class Data:
         data = self._authenticated_call_api(endpoint, base_url, api_key, secret)
         if data['result'] == 'success':
             return data
-        raise ValueError(f'Error: {data['error']}')
+        raise ValueError(f'Error: {data["error"]}')
 
     def _check_input_type(self, obj):
         if not isinstance(obj, str):
