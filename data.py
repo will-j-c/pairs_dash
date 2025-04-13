@@ -102,7 +102,7 @@ class Data:
         data = self._call_api('https://futures.kraken.com/derivatives/api/v3/tickers')
         if data['result'] == 'success':
             return data['tickers']
-        raise ValueError(f'Error: {data['error']}')
+        raise ValueError(f'Error: {data["error"]}')
     
     def get_position_info(self, config):
         position_df = self._create_position_df(config)
