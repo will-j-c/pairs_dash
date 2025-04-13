@@ -3,10 +3,26 @@ from plotly.subplots import make_subplots
 import dash_bootstrap_components as dbc
 from data import Data
 from helper import create_config_dict
+from dotenv import load_dotenv
+import os
+import dash_auth
+
+load_dotenv(override=True)
+
+username = os.getenv('USERNAME')
+password = os.getenv('PASSWORD')
+
+VALID_USERNAME_PASSWORD_PAIRS = {
+    username: password
+}
 
 data = Data()
 config = create_config_dict()
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+auth = dash_auth.BasicAuth(
+    app,
+    VALID_USERNAME_PASSWORD_PAIRS
+)
 
 server = app.server
 
