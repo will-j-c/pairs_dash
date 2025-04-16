@@ -124,8 +124,8 @@ def update_pairs(value, interval, lag, ticker_type, resolution):
                     row=2, col=1, showlegend=True, name='spread')
     fig.add_scatter(x=dff.index, y=dff['z'],
                     row=1, col=1, showlegend=True, name='z')
-    fig.add_scatter(x=dff.index, y=dff['robust'],
-                    row=1, col=1, showlegend=True, name='robust')
+    #fig.add_scatter(x=dff.index, y=dff['robust'],
+     #               row=1, col=1, showlegend=True, name='robust')
 
     # Add the horizontal lines
     fig.add_hline(0, row=1, col=1, line_dash='dash', line_color='grey')
