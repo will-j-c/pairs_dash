@@ -8,7 +8,6 @@ dash = "*"
 pandas = "*"
 requests = "*"
 gunicorn = "*"
-dash-bootstrap-components = "*"
 python-dotenv = "*"
 dash-auth = "*"
 

@@ -1,11 +1,11 @@
 from dash import Dash, dcc, html, callback, Output, Input, dash_table
 from plotly.subplots import make_subplots
-import dash_bootstrap_components as dbc
-from data import Data
 from helper import create_config_dict
 from dotenv import load_dotenv
 import os
 import dash_auth
+from data import Data
+from layout import radio_items, table, stop_string
 
 load_dotenv(override=True)
 
@@ -18,7 +18,7 @@ VALID_USERNAME_PASSWORD_PAIRS = {
 
 data = Data()
 config = create_config_dict()
-app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash()
 auth = dash_auth.BasicAuth(
     app,
     VALID_USERNAME_PASSWORD_PAIRS
@@ -26,63 +26,24 @@ auth = dash_auth.BasicAuth(
 
 server = app.server
 
-def radio_items(title, id, options, value):
-    buttons = html.Div([
-        html.H6(title),
-        dcc.RadioItems(options, value, id=id)
-    ])
-    return buttons
+app.layout = [html.Div(
+    [
+        html.Div(
+            [
+                radio_items('Pairs', 'radio-selection',sorted(list(config.keys())), sorted(list(config.keys()))[0]),
+                radio_items('Time View', 'time_view', [72, 144, 216, 288, 360], 216),
+                radio_items('Lag', 'lag', [192, 216, 240, 312], 312),
+                radio_items('Ticker Type', 'ticker_type', ['mark', 'spot', 'trade'], 'trade'),
+                radio_items('Resolution', 'resolution', ['15m', '30m', '1h', '4h', '12h', '1d'], '1h')
+            ],
+        ),
+        dcc.Graph(id='graph-spread', responsive=False),
+        html.H4(stop_string(data), id='stop'),
+        table(data, config)],
+),
 
-
-def table():
-    df = data.get_position_info(config)
-    if df.empty:
-        return html.P('No open positions')
-    table = dash_table.DataTable(df.to_dict('records'), 
-                                 columns=[{'name': i, 'id': i} for i in df.columns],
-                                 editable=False,
-                                 id='table',
-                                 style_cell={'textAlign': 'left'}
-                                 )
-    
-    return html.Div([table])
-
-def stop_string():
-    stop_loss =  data.get_collateral_value() * 0.02
-    string = '{0:.2f}'.format(-stop_loss)
-    return 'Stop loss at: ' + string
-
-app.layout = dbc.Container([
-    html.Div(
-        [
-            html.Div(
-                [
-                    radio_items('Pairs', 'radio-selection',
-                                sorted(list(config.keys())), sorted(list(config.keys()))[0]),
-                    radio_items('Time View', 'time_view', [
-                                72, 144, 216, 288, 360], 216),
-                    radio_items('Lag', 'lag', [192, 216, 240, 312], 312),
-                    radio_items('Ticker Type', 'ticker_type', [
-                                'mark', 'spot', 'trade'], 'trade'),
-                    radio_items('Resolution', 'resolution', [
-                                '15m', '30m', '1h', '4h', '12h', '1d'], '1h')
-                ],
-                style={'textAlign': 'left',
-                       'display': 'flex',
-                       'justify-content': 'space-evenly',
-                       'align-items': 'flex-start',
-                       'font-size': '0.75em',
-                       },
-            ),
-            dcc.Graph(id='graph-spread', responsive=True,
-                      style={'height': '65vh'}),
-            html.H4(stop_string(), id='stop'),
-            table()], 
-    ),
-
-    dcc.Interval(id='interval', interval=30000, n_intervals=0),
-    dcc.Interval(id='interval2', interval=10000, n_intervals=0)
-], style={'margin-top': 20, 'height': '100vh'})
+dcc.Interval(id='interval', interval=30000, n_intervals=0),
+dcc.Interval(id='interval2', interval=10000, n_intervals=0)]
 
 
 @callback(
@@ -106,12 +67,14 @@ def update_table(n_intervals):
     df = data.get_position_info(config)
     return df.to_dict('records')
 
+
 @callback(
     Output('stop', 'children'),
     Input('interval2', 'n_intervals'),
 )
 def update_stop(n_intervals):
-    return stop_string()
+    return stop_string(data)
+
 
 def update_pairs(value, interval, lag, ticker_type, resolution):
     entry = config[value]
@@ -125,8 +88,6 @@ def update_pairs(value, interval, lag, ticker_type, resolution):
                     row=2, col=1, showlegend=True, name='spread')
     fig.add_scatter(x=dff.index, y=dff['z'],
                     row=1, col=1, showlegend=True, name='z')
-    #fig.add_scatter(x=dff.index, y=dff['robust'],
-     #               row=1, col=1, showlegend=True, name='robust')
 
     # Add the horizontal lines
     fig.add_hline(0, row=1, col=1, line_dash='dash', line_color='grey')
