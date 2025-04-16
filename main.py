@@ -36,6 +36,8 @@ def radio_items(title, id, options, value):
 
 def table():
     df = data.get_position_info(config)
+    if df.empty:
+        return html.P('No open positions')
     table = dash_table.DataTable(df.to_dict('records'), 
                                  columns=[{'name': i, 'id': i} for i in df.columns],
                                  editable=False,
@@ -59,8 +61,7 @@ app.layout = dbc.Container([
                                 sorted(list(config.keys())), sorted(list(config.keys()))[0]),
                     radio_items('Time View', 'time_view', [
                                 72, 144, 216, 288, 360], 216),
-                    radio_items('Lag', 'lag', [
-                                24, 48, 72, 96, 120, 144, 168, 192], 144),
+                    radio_items('Lag', 'lag', [192, 216, 240, 312], 312),
                     radio_items('Ticker Type', 'ticker_type', [
                                 'mark', 'spot', 'trade'], 'trade'),
                     radio_items('Resolution', 'resolution', [

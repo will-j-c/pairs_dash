@@ -106,6 +106,8 @@ class Data:
     
     def get_position_info(self, config):
         position_df = self._create_position_df(config)
+        if position_df.empty:
+            return position_df
         config_df = self._create_config_df(config)
         ticker_df = self._create_ticker_df()
         df = pd.merge(position_df, config_df, left_on='symbol', right_on='value')
@@ -128,8 +130,9 @@ class Data:
         position_data = self._get_open_positions()['openPositions']
         strategy_symbols = [value['pair_1'] for value in config.values()] + [value['pair_2'] for value in config.values()]
         df = pd.DataFrame(position_data)
-        mask = df['symbol'].isin(strategy_symbols)
-        df = df[mask]
+        if not df.empty:
+            mask = df['symbol'].isin(strategy_symbols)
+            df = df[mask]
         return df
 
     def _create_config_df(self, config):
