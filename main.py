@@ -40,8 +40,8 @@ app.layout = [html.Div(
             [
                 html.Div(radio_controls, className='radio-div'),
                 html.Div([
-                    dcc.Graph(id='graph-spread', responsive=False),
-                    dcc.Graph(id='graph-z', responsive=False),
+                    dcc.Graph(id='graph-spread', config=dict(displayModeBar=False,  showAxisDragHandles=False)),
+                    dcc.Graph(id='graph-z', config=dict(displayModeBar=False)),
                 ], 
                 className='graph-div')
             ],
@@ -52,8 +52,8 @@ app.layout = [html.Div(
     ], className='main-div'
 ),
 
-dcc.Interval(id='interval-graph', interval=30000, n_intervals=0),
-dcc.Interval(id='interval-stop', interval=10000, n_intervals=0)]
+dcc.Interval(id='interval-graph', interval=20000, n_intervals=0),
+dcc.Interval(id='interval-stop', interval=5000, n_intervals=0)]
 
 
 # Callback fro the memory store
@@ -62,8 +62,9 @@ dcc.Interval(id='interval-stop', interval=10000, n_intervals=0)]
         Input('pairs-selection', 'value'),
         Input('lag', 'value'),
         Input('ticker_type', 'value'),
+        Input('interval-graph', 'n_intervals')
 )
-def update_memory_store(pairs, lag, ticker_type):
+def update_memory_store(pairs, lag, ticker_type, n_intervals):
     return update_memory_store_value(pairs, lag, ticker_type, data, config)
 
 # Callbacks for updating spread graph

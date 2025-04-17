@@ -17,19 +17,16 @@ class Data:
         pair_2_df = self._create_df_candles(pair_2, resolution, ticker_type)
         pairs_df = pd.merge(pair_1_df, pair_2_df, on='time', suffixes=[pair_1, pair_2])
         pairs_df['spread'] = pairs_df[f'close{pair_1}'] - beta * pairs_df[f'close{pair_2}']
-        pairs_df['median'] = pairs_df['spread'].rolling(lag).median()
-        pairs_df['uq'] = pairs_df['spread'].rolling(lag).quantile(0.75)
-        pairs_df['lq'] = pairs_df['spread'].rolling(lag).quantile(0.25)
-        pairs_df['robust'] = (pairs_df['spread'] - pairs_df['median']) / (pairs_df['uq'] - pairs_df['lq'])
         pairs_df['z'] = (pairs_df['spread'] - pairs_df['spread'].rolling(lag).mean()) / pairs_df['spread'].rolling(lag).std()
         pairs_df.dropna(inplace=True)
+        pairs_df['time'] = pairs_df.index
         return pairs_df
     
         
     def create_axis_from_df(self, df):
-        index = df.index
-        start = index[0]
-        end = index[-1] + pd.Timedelta(hours=7)
+        index = df['time']
+        start = index.iloc[0]
+        end = pd.Timestamp(index.iloc[-1]) + pd.Timedelta(hours=12)
         return pd.date_range(start, end, freq='h')
 
     def _create_df_candles(self, symbol, resolution, ticker_type):
