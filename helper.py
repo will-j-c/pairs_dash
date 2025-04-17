@@ -74,6 +74,12 @@ def get_headers(api_key, authent):
         'Authent': authent
     }
 
+def update_memory_store_value(value, lag, ticker_type, data_call, config):
+     entry = config[value]
+     df = data_call.create_pair_data(entry['pair_1'], entry['pair_2'], '1h', entry['beta'], ticker_type, lag)
+     return df.to_dict('records')
+
+
 
 if __name__ == '__main__':
     pprint(create_config_dict())

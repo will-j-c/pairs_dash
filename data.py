@@ -12,7 +12,7 @@ secret = os.getenv('SECRET')
 
 class Data:
     
-    def create_pair_data(self, pair_1, pair_2, resolution, beta, interval, ticker_type='mark', lag=72):
+    def create_pair_data(self, pair_1, pair_2, resolution, beta, ticker_type='mark', lag=72):
         pair_1_df = self._create_df_candles(pair_1, resolution, ticker_type)
         pair_2_df = self._create_df_candles(pair_2, resolution, ticker_type)
         pairs_df = pd.merge(pair_1_df, pair_2_df, on='time', suffixes=[pair_1, pair_2])
@@ -23,7 +23,6 @@ class Data:
         pairs_df['robust'] = (pairs_df['spread'] - pairs_df['median']) / (pairs_df['uq'] - pairs_df['lq'])
         pairs_df['z'] = (pairs_df['spread'] - pairs_df['spread'].rolling(lag).mean()) / pairs_df['spread'].rolling(lag).std()
         pairs_df.dropna(inplace=True)
-        pairs_df = pairs_df.tail(interval)
         return pairs_df
     
         

@@ -1,0 +1,23 @@
+.main-div {
+    display: flex;
+    flex-direction: column;
+    margin: 3rem;
+}
+
+.radio-div {
+    display: flex;
+    flex-direction: row;
+    /* justify-content: space-between; */
+}
+
+.centre-div {
+    display: flex;
+    flex-direction: row-reverse;
+    /* justify-content: space-between; */
+}
+
+.graph-div {
+    display: flex;
+    flex-direction: column;
+    /* justify-content: space-between; */
+}
