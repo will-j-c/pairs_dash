@@ -1,11 +1,13 @@
-from dash import Dash, dcc, html, callback, Output, Input, dash_table
-from plotly.subplots import make_subplots
+# -*- coding: utf-8 -*-
+from dash import Dash, dcc, html, callback, Output, Input
 import dash_bootstrap_components as dbc
-from data import Data
-from helper import create_config_dict
 from dotenv import load_dotenv
 import os
 import dash_auth
+import pandas as pd
+from data import Data
+from layout import radio_items, table, radio_card, pill, selection
+from helper import create_config_dict, update_memory_store_value, stop_string, update_spread_fig, update_z_fig, cash_string
 
 load_dotenv(override=True)
 
@@ -26,117 +28,109 @@ auth = dash_auth.BasicAuth(
 
 server = app.server
 
-def radio_items(title, id, options, value):
-    buttons = html.Div([
-        html.H6(title),
-        dcc.RadioItems(options, value, id=id)
-    ])
-    return buttons
+radio_controls = [
+                radio_items('Pairs', 'pairs-selection',sorted(list(config.keys())), sorted(list(config.keys()))[0]),
+                radio_items('Time View', 'time-view', [72, 144, 216, 288, 360], 216),
+            ]
+
+app.layout = [dbc.Container(
+    [
+        dcc.Store(id='memory-output'),
+        dbc.Row([
+            dbc.Col([dcc.Graph(id='graph-spread', config=dict(displayModeBar=False,  showAxisDragHandles=False))], lg=9),
+            dbc.Col([radio_card(config)], lg=3),
+        ], className='mt-3'),
+        dbc.Row([
+            dbc.Col([dcc.Graph(id='graph-z', config=dict(displayModeBar=False))], lg=9),
+            dbc.Col(selection(sorted(list(config.keys()))[0], config), lg=3, id='selection'),
+        ], className='mt-1'),
+        dbc.Row([
+            dbc.Col([
+                pill('Cash', cash_string(data), 'cash')
+            ], lg=2),
+            dbc.Col([
+                pill('Stop Loss', stop_string(data), 'stop')
+            ], lg=2)
+            
+        ], justify='center', className='mt-1'),
+        dbc.Row([
+            dbc.Col([
+                table(data, config)
+            ], lg=6)
+            
+        ], justify='center', className='mt-3'),
+    ], className='mh-100', fluid=True
+),
+
+dcc.Interval(id='interval-graph', interval=20000, n_intervals=0),
+dcc.Interval(id='interval-stop', interval=5000, n_intervals=0)]
 
 
-def table():
-    df = data.get_position_info(config)
-    table = dash_table.DataTable(df.to_dict('records'), 
-                                 columns=[{'name': i, 'id': i} for i in df.columns],
-                                 editable=False,
-                                 id='table',
-                                 style_cell={'textAlign': 'left'}
-                                 )
-    
-    return html.Div([table])
+# Callback fro the memory store
+@callback(
+        Output('memory-output', 'data'),
+        Input('pairs-selection', 'value'),
+        Input('interval-graph', 'n_intervals')
+)
+def update_memory_store(pairs, n_intervals):
+    return update_memory_store_value(pairs, data, config)
 
-def stop_string():
-    stop_loss =  data.get_collateral_value() * 0.02
-    string = '{0:.2f}'.format(-stop_loss)
-    return 'Stop loss at: ' + string
-
-app.layout = dbc.Container([
-    html.Div(
-        [
-            html.Div(
-                [
-                    radio_items('Pairs', 'radio-selection',
-                                sorted(list(config.keys())), sorted(list(config.keys()))[0]),
-                    radio_items('Time View', 'time_view', [
-                                72, 144, 216, 288, 360], 216),
-                    radio_items('Lag', 'lag', [
-                                24, 48, 72, 96, 120, 144, 168, 192], 144),
-                    radio_items('Ticker Type', 'ticker_type', [
-                                'mark', 'spot', 'trade'], 'trade'),
-                    radio_items('Resolution', 'resolution', [
-                                '15m', '30m', '1h', '4h', '12h', '1d'], '1h')
-                ],
-                style={'textAlign': 'left',
-                       'display': 'flex',
-                       'justify-content': 'space-evenly',
-                       'align-items': 'flex-start',
-                       'font-size': '0.75em',
-                       },
-            ),
-            dcc.Graph(id='graph-spread', responsive=True,
-                      style={'height': '65vh'}),
-            html.H4(stop_string(), id='stop'),
-            table()], 
-    ),
-
-    dcc.Interval(id='interval', interval=30000, n_intervals=0),
-    dcc.Interval(id='interval2', interval=10000, n_intervals=0)
-], style={'margin-top': 20, 'height': '100vh'})
-
-
+# Callbacks for updating spread graph
 @callback(
     Output('graph-spread', 'figure'),
-    Input('radio-selection', 'value'),
-    Input('interval', 'n_intervals'),
-    Input('time_view', 'value'),
-    Input('lag', 'value'),
-    Input('ticker_type', 'value'),
-    Input('resolution', 'value'),
+    Input('memory-output', 'data'),
+    Input('time-view', 'value'),
 )
-def update_graph(value, n_intervals, interval, lag, ticker_type, resolution):
-    return update_pairs(value, interval, lag, ticker_type, resolution)
+def update_spread_graph(records, timeview):
+    df = pd.DataFrame(records)
+    df = df.tail(timeview)
+    return update_spread_fig(df, data)
 
+# Callbacks for updating z graph
+@callback(
+    Output('graph-z', 'figure'),
+    Input('memory-output', 'data'),
+    Input('time-view', 'value'),
+)
+def update_z_graph(records, timeview):
+    df = pd.DataFrame(records)
+    df = df.tail(timeview)
+    pairs = df.columns[0][8:-3] + '/' + df.columns[1][8:-3]
+    entry = config[pairs]
+    return update_z_fig(df, data, entry['high_sigma'], entry['low_sigma'])
 
+# Callbacks for table
 @callback(
     Output('table', 'data'),
-    Input('interval2', 'n_intervals'),
+    Input('interval-stop', 'n_intervals'),
 )
 def update_table(n_intervals):
     df = data.get_position_info(config)
     return df.to_dict('records')
 
+# Callback for stop
 @callback(
     Output('stop', 'children'),
-    Input('interval2', 'n_intervals'),
+    Input('interval-stop', 'n_intervals'),
 )
 def update_stop(n_intervals):
-    return stop_string()
+    return stop_string(data)
 
-def update_pairs(value, interval, lag, ticker_type, resolution):
-    entry = config[value]
-    dff = data.create_pair_data(
-        entry['pair_1'], entry['pair_2'], resolution, entry['beta'], interval, ticker_type, lag)
-    x_axis_labels = list(data.create_axis_from_df(dff))
-    fig = make_subplots(rows=3, cols=1, shared_xaxes=False,
-                        vertical_spacing=0.05)
-    # Add the lines
-    fig.add_scatter(x=dff.index, y=dff['spread'],
-                    row=2, col=1, showlegend=True, name='spread')
-    fig.add_scatter(x=dff.index, y=dff['z'],
-                    row=1, col=1, showlegend=True, name='z')
-    #fig.add_scatter(x=dff.index, y=dff['robust'],
-     #               row=1, col=1, showlegend=True, name='robust')
+# Callback for cash
+@callback(
+    Output('cash', 'children'),
+    Input('interval-stop', 'n_intervals'),
+)
+def update_stop(n_intervals):
+    return cash_string(data)
 
-    # Add the horizontal lines
-    fig.add_hline(0, row=1, col=1, line_dash='dash', line_color='grey')
-    fig.add_hline(2, row=1, col=1, line_dash='dash', line_color='grey')
-    fig.add_hline(-2, row=1, col=1, line_dash='dash', line_color='grey')
-
-    fig.update_xaxes(range=[x_axis_labels[0], x_axis_labels[-1]])
-    fig.update_layout(title_text=f'Pair: {value}, Time View: {interval}, Spread Lag: {lag}, Resolution: {resolution}', title_font={
-                      'size': 20, 'weight': 600})
-    return fig
-
+# Callback for settings
+@callback(
+    Output('selection', 'children'),
+    Input('pairs-selection', 'value'),
+)
+def update_settings(value):
+    return selection(value, config)
 
 if __name__ == '__main__':
     app.run(debug=True)
