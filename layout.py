@@ -1,7 +1,10 @@
 from dash import dcc, html, dash_table, no_update
+import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
+from dash.dash_table.Format import Format
+
 
 def radio_items(title, id, options, value):
     buttons = html.Div([
@@ -13,53 +16,119 @@ def radio_items(title, id, options, value):
 
 def table(data_call, config):
     df = data_call.get_position_info(config)
-    table = dash_table.DataTable(df.to_dict('records'), 
-                                 columns=[{'name': i, 'id': i} for i in df.columns],
+    columns = [
+        {'name': 'Position', 'id': 'Position'},
+        {'name': 'P&L', 'id': 'P&L'},
+        {'name': 'Est. Fee', 'id': 'Est. Fee'},
+        {'name': 'Net P&L', 'id': 'Net P&L'},
+    ]
+    table = dash_table.DataTable(data=df.to_dict('records'),
+                                 columns=columns,
                                  editable=False,
                                  id='table',
-                                 style_cell={'textAlign': 'left'}
-                                 )
-    
+                                 style_cell={'textAlign': 'center'},
+                                 style_header={'fontWeight': 'bolder'},
+                                 style_cell_conditional=[
+                                    {
+                                        'if': {'column_id': 'Position'},
+                                        'textAlign': 'left'
+                                    },
+                                ],
+                                    style_data_conditional=[
+                                    {
+                                        'if': {
+                                            'filter_query': '{P&L} > 0',
+                                            'column_id': 'P&L'
+                                        },
+                                        'color': 'green'
+                                    },
+                                    {
+                                        'if': {
+                                            'filter_query': '{P&L} < 0',
+                                            'column_id': 'P&L'
+                                        },
+                                        'color': 'red'
+                                    },
+                                    {
+                                        'if': {
+                                            'filter_query': '{Net P&L} > 0',
+                                            'column_id': 'Net P&L'
+                                        },
+                                        'color': 'green'
+                                    },
+                                    {
+                                        'if': {
+                                            'filter_query': '{Net P&L} < 0',
+                                            'column_id': 'Net P&L'
+                                        },
+                                        'color': 'red'
+                                    },
+                                ]
+    )
     return html.Div([table])
 
-def pill(title, value):
-    pass
 
-def selection(config):
-    html.Div([
-        html.Li([
-            
-        ])
-    ])
+def pill(title, value, id):
+    card = dbc.Card([
+        dbc.CardHeader([title], className='fw-bolder'),
+        dbc.CardBody([
+            value
+        ], id=id)
+    ], className='text-center')
+    return card
 
-def stop_string(data_Call):
-    stop_loss =  data_Call.get_collateral_value() * 0.02
-    string = '{0:.2f}'.format(-stop_loss)
-    return 'Stop loss at: ' + string
 
-def update_spread_fig(df, data_call):
-    if df is None:
-        return no_update
+def selection(pairs, config):
+    entry = config[pairs]
+    card = dbc.Card([
+        dbc.CardBody([
+            dbc.Row([
+                dbc.Col(['Pairs: ']),
+                dbc.Col(pairs)
+            ]),
+            dbc.Row([
+                dbc.Col(['Beta: ']),
+                dbc.Col(round(entry['beta'], 4))
+            ]),
+            dbc.Row([
+                dbc.Col(['High: ']),
+                dbc.Col(entry['high_sigma'])
+            ]),
+            dbc.Row([
+                dbc.Col(['Low: ']),
+                dbc.Col(entry['low_sigma'])
+            ]),
+            dbc.Row([
+                dbc.Col(['Lag: ']),
+                dbc.Col(entry['lag'])
+            ]),
+        ], className='fs-6')
+    ], className='mt-3')
+    return card
 
-    x_axis_labels = list(data_call.create_axis_from_df(df))
-    fig = px.line(df, x='time', y='spread', title='spread')
-    fig.update_layout(margin=dict(l=20, r=20, t=20, b=20), title=None, font_family='Arial, Helvetica, sans-serif')
-    fig.update_traces(line_color='blue', line_width=2)
-    fig.update_xaxes(title='Spread', fixedrange=True, range=[x_axis_labels[0], x_axis_labels[-1]])
-    fig.update_yaxes(side='right', title=None, fixedrange=True)
-    return fig
 
-def update_z_fig(df, data_call, high_sigma=2, low_sigma=-2):
-    if df is None:
-        return no_update
-    
-    x_axis_labels = list(data_call.create_axis_from_df(df))
-    fig = px.line(df,  x='time', y='z', title=None)
-    fig.add_hline(y=high_sigma, line_color='grey', opacity=0.75, line_dash='dash')
-    fig.add_hline(y=low_sigma,  line_color='grey', opacity=0.75, line_dash='dash')
-    fig.add_hline(y=0,  line_color='grey', opacity=0.75, line_dash='dash')
-    fig.update_layout(margin=dict(l=20, r=20, t=20, b=20), font_family='Arial, Helvetica, sans-serif')
-    fig.update_traces(line_color='red', line_width=2)
-    fig.update_xaxes(title='Z',  fixedrange=True, range=[x_axis_labels[0], x_axis_labels[-1]])
-    fig.update_yaxes(side='right', title=None, fixedrange=True)
-    return fig
+def radio_card(config):
+    card = dbc.Card([
+        dbc.CardHeader([
+            dbc.Row([
+                dbc.Col([
+                    'Pairs'
+                ]),
+                dbc.Col([
+                    'View'
+                ], width=4)
+            ], className='fw-bolder')
+        ]),
+        dbc.CardBody([
+            dbc.Row([
+                dbc.Col([
+                    dcc.RadioItems(sorted(list(config.keys())), sorted(
+                        list(config.keys()))[0], id='pairs-selection'),
+                ]),
+                dbc.Col([
+                    dcc.RadioItems([72, 144, 216, 288, 360],
+                                   216, id='time-view')
+                ], width=4, className='fs-6')
+            ])
+        ])], className='mt-3')
+    return card
