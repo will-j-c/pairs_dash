@@ -1,4 +1,5 @@
 from dash import Dash, dcc, html, callback, Output, Input
+import dash_bootstrap_components as dbc
 from dotenv import load_dotenv
 import os
 import dash_auth
@@ -29,27 +30,28 @@ server = app.server
 radio_controls = [
                 radio_items('Pairs', 'pairs-selection',sorted(list(config.keys())), sorted(list(config.keys()))[0]),
                 radio_items('Time View', 'time-view', [72, 144, 216, 288, 360], 216),
-                radio_items('Lag', 'lag', [192, 216, 240, 312], 312),
-                radio_items('Ticker Type', 'ticker_type', ['mark', 'spot', 'trade'], 'trade'),
             ]
 
-app.layout = [html.Div(
+app.layout = [dbc.Container(
     [
         dcc.Store(id='memory-output'),
         html.Div(
             [
-                html.Div(radio_controls, className='radio-div'),
                 html.Div([
-                    dcc.Graph(id='graph-spread', config=dict(displayModeBar=False,  showAxisDragHandles=False)),
+                    dcc.Graph(id='graph-spread', config=dict(displayModeBar=False,  showAxisDragHandles=False), responsive=True),
+                    html.Div(radio_controls, id='radio-div')
+                    ],
+                    className='row-div'),
+                html.Div([
                     dcc.Graph(id='graph-z', config=dict(displayModeBar=False)),
                 ], 
-                className='graph-div')
+                className='row-div')
             ],
-            className='centre-div'
+            id='centre-div'
         ),
-        html.H4(stop_string(data), id='stop'),
+        html.H6(stop_string(data), id='stop'),
         table(data, config)
-    ], className='main-div'
+    ], id='main-div'
 ),
 
 dcc.Interval(id='interval-graph', interval=20000, n_intervals=0),
@@ -60,12 +62,10 @@ dcc.Interval(id='interval-stop', interval=5000, n_intervals=0)]
 @callback(
         Output('memory-output', 'data'),
         Input('pairs-selection', 'value'),
-        Input('lag', 'value'),
-        Input('ticker_type', 'value'),
         Input('interval-graph', 'n_intervals')
 )
-def update_memory_store(pairs, lag, ticker_type, n_intervals):
-    return update_memory_store_value(pairs, lag, ticker_type, data, config)
+def update_memory_store(pairs, n_intervals):
+    return update_memory_store_value(pairs, data, config)
 
 # Callbacks for updating spread graph
 @callback(
@@ -84,10 +84,12 @@ def update_spread_graph(records, timeview):
     Input('memory-output', 'data'),
     Input('time-view', 'value'),
 )
-def update_spread_graph(records, timeview):
+def update_z_graph(records, timeview):
     df = pd.DataFrame(records)
     df = df.tail(timeview)
-    return update_z_fig(df, data)
+    pairs = df.columns[0][8:-3] + '/' + df.columns[1][8:-3]
+    entry = config[pairs]
+    return update_z_fig(df, data, entry['high_sigma'], entry['low_sigma'])
 
 # Callbacks for stop and table
 @callback(

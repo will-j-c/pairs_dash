@@ -7,7 +7,7 @@ import urllib.parse
 
 def create_entries_list():
     entries = []
-    with open('results.csv', newline='') as csvfile:
+    with open('config.csv', newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             # skip the first row
@@ -16,7 +16,7 @@ def create_entries_list():
 
             # Add the row to the entries
             entries.append(row)
-
+    entries = sorted(entries, key=lambda entry: int(entry[5]), reverse=True)
     return entries
 
 def create_unique_entries_list(entries):
@@ -26,8 +26,6 @@ def create_unique_entries_list(entries):
         pairs_2 = [entry[2] for entry in unique_entries]
         if row[1] not in pairs_1 and row[1] not in pairs_2 and row[2] not in pairs_1 and row[2] not in pairs_2:
             unique_entries.append(row)
-
-    
     return unique_entries
 
 
@@ -40,6 +38,9 @@ def create_config_dict():
         'pair_1': f'PF_{entry[1]}',
         'pair_2': f'PF_{entry[2]}',
         'beta': float(entry[4]),
+        'high_sigma': int(entry[6]),
+        'low_sigma': int(entry[7]),
+        'lag': int(entry[8])
         }
     return config_dict
 
@@ -74,12 +75,10 @@ def get_headers(api_key, authent):
         'Authent': authent
     }
 
-def update_memory_store_value(value, lag, ticker_type, data_call, config):
+def update_memory_store_value(value, data_call, config):
      entry = config[value]
-     df = data_call.create_pair_data(entry['pair_1'], entry['pair_2'], '1h', entry['beta'], ticker_type, lag)
+     df = data_call.create_pair_data(entry['pair_1'], entry['pair_2'], '1h', entry['beta'], 'trade', entry['lag'])
      return df.to_dict('records')
-
-
 
 if __name__ == '__main__':
     pprint(create_config_dict())

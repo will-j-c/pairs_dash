@@ -1,4 +1,5 @@
-from dash import Dash, dcc, html, dash_table, no_update
+from dash import dcc, html, dash_table, no_update
+import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 
@@ -21,12 +22,20 @@ def table(data_call, config):
     
     return html.Div([table])
 
+def pill(title, value):
+    pass
+
+def selection(config):
+    html.Div([
+        html.Li([
+            
+        ])
+    ])
+
 def stop_string(data_Call):
     stop_loss =  data_Call.get_collateral_value() * 0.02
     string = '{0:.2f}'.format(-stop_loss)
     return 'Stop loss at: ' + string
-
-
 
 def update_spread_fig(df, data_call):
     if df is None:
@@ -34,7 +43,7 @@ def update_spread_fig(df, data_call):
 
     x_axis_labels = list(data_call.create_axis_from_df(df))
     fig = px.line(df, x='time', y='spread', title='spread')
-    fig.update_layout(margin=dict(l=20, r=20, t=20, b=20), title=None)
+    fig.update_layout(margin=dict(l=20, r=20, t=20, b=20), title=None, font_family='Arial, Helvetica, sans-serif')
     fig.update_traces(line_color='blue', line_width=2)
     fig.update_xaxes(title='Spread', fixedrange=True, range=[x_axis_labels[0], x_axis_labels[-1]])
     fig.update_yaxes(side='right', title=None, fixedrange=True)
@@ -49,7 +58,7 @@ def update_z_fig(df, data_call, high_sigma=2, low_sigma=-2):
     fig.add_hline(y=high_sigma, line_color='grey', opacity=0.75, line_dash='dash')
     fig.add_hline(y=low_sigma,  line_color='grey', opacity=0.75, line_dash='dash')
     fig.add_hline(y=0,  line_color='grey', opacity=0.75, line_dash='dash')
-    fig.update_layout(margin=dict(l=20, r=20, t=20, b=20))
+    fig.update_layout(margin=dict(l=20, r=20, t=20, b=20), font_family='Arial, Helvetica, sans-serif')
     fig.update_traces(line_color='red', line_width=2)
     fig.update_xaxes(title='Z',  fixedrange=True, range=[x_axis_labels[0], x_axis_labels[-1]])
     fig.update_yaxes(side='right', title=None, fixedrange=True)
