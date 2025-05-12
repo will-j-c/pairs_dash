@@ -9,7 +9,7 @@ import plotly.express as px
 
 def create_entries_list():
     entries = []
-    with open('config.csv', newline='') as csvfile:
+    with open('config/config.csv', newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             # skip the first row

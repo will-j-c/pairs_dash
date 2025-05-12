@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "deb75e6f64ffd7a57840519ed538ec4be06e94de3a186c1c5e6f0cf18be24e6b"
+            "sha256": "ebf3ec654962c53eb297c2751ac27a2e978934cce04972e917cc43672df8f1fc"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -147,15 +147,6 @@
             "markers": "python_version >= '3.8'",
             "version": "==3.0.3"
         },
-        "dash-auth": {
-            "hashes": [
-                "sha256:2fa72d4ee128b4f9cf0c958157a986ffcd0b93d43b54d64e3cef5976ab7e0abe",
-                "sha256:72df43248c15e121f8d5d710981e880deb2df546b564f2951a10ca50d7d92f6d"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3.8'",
-            "version": "==2.3.0"
-        },
         "dash-bootstrap-components": {
             "hashes": [
                 "sha256:3cc6586f37cb3fcc04bc72d3801c07b792040066a2cc78d2330885529265ec28",
@@ -172,6 +163,15 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==3.0.3"
+        },
+        "flask-login": {
+            "hashes": [
+                "sha256:5e23d14a607ef12806c699590b89d0f0e0d67baeec599d75947bf9c147330333",
+                "sha256:849b25b82a436bf830a054e74214074af59097171562ab10bfa999e6b78aae5d"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.7'",
+            "version": "==0.6.3"
         },
         "gunicorn": {
             "hashes": [

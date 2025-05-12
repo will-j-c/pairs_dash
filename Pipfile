@@ -9,8 +9,8 @@ pandas = "*"
 requests = "*"
 gunicorn = "*"
 python-dotenv = "*"
-dash-auth = "*"
 dash-bootstrap-components = "*"
+flask-login = "*"
 
 [dev-packages]
 

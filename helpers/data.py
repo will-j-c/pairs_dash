@@ -1,7 +1,7 @@
 from requests import get
 import pandas as pd
 import numpy as np
-from helper import authentication_function, get_headers, create_post_data
+from helpers.helper import authentication_function, get_headers, create_post_data
 from dotenv import load_dotenv
 import os
 
