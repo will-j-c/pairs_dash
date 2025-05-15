@@ -11,6 +11,9 @@ gunicorn = "*"
 python-dotenv = "*"
 dash-bootstrap-components = "*"
 flask-login = "*"
+psycopg2-binary = "*"
+bcrypt = "*"
+flask-sqlalchemy = "*"
 
 [dev-packages]
 

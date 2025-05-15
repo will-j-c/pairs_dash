@@ -6,7 +6,9 @@ import base64
 import urllib.parse
 from dash import no_update
 import plotly.express as px
+import os
 
+# Create the config files
 def create_entries_list():
     entries = []
     with open('config/config.csv', newline='') as csvfile:
@@ -46,6 +48,7 @@ def create_config_dict():
         }
     return config_dict
 
+# For making authenticated calls to Kraken
 def create_post_data(data):
     return urllib.parse.urlencode(data)
 
@@ -77,21 +80,25 @@ def get_headers(api_key, authent):
         'Authent': authent
     }
 
+# Update the memory store in dash
 def update_memory_store_value(value, data_call, config):
      entry = config[value]
      df = data_call.create_pair_data(entry['pair_1'], entry['pair_2'], '1h', entry['beta'], 'trade', entry['lag'])
      return df.to_dict('records')
 
+# Update the stop loss string
 def stop_string(data_call):
     stop_loss =  data_call.get_collateral_value() * 0.02
     string = '{0:.2f}'.format(-stop_loss)
     return string
 
+# Update the cash string
 def cash_string(data_call):
     cash =  data_call.get_collateral_value()
     string = '{0:.2f}'.format(cash)
     return string
 
+# Update the spread fig
 def update_spread_fig(df, data_call):
     if df is None:
         return no_update
@@ -104,6 +111,7 @@ def update_spread_fig(df, data_call):
     fig.update_yaxes(side='right', title=None, fixedrange=True)
     return fig
 
+# nUpdate the z fig
 def update_z_fig(df, data_call, high_sigma=2, low_sigma=-2):
     if df is None:
         return no_update
@@ -118,6 +126,3 @@ def update_z_fig(df, data_call, high_sigma=2, low_sigma=-2):
     fig.update_xaxes(title='Z',  fixedrange=True, range=[x_axis_labels[0], x_axis_labels[-1]])
     fig.update_yaxes(side='right', title=None, fixedrange=True)
     return fig
-
-if __name__ == '__main__':
-    pprint(create_config_dict())
