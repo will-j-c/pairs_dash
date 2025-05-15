@@ -153,10 +153,3 @@ class Data:
         else:
             pnl = cost - current_value
         return pnl
-
-    
-if __name__ == '__main__':
-    from helper import create_config_dict
-    data = Data()
-    config = create_config_dict()
-    data.get_position_info(config)

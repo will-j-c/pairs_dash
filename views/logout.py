@@ -17,7 +17,8 @@ layout = html.Div(children=[
                             className="ten columns",
                             children=[
                                 html.Br(),
-                                html.Div('User disconnected - Please login to view the success screen again'),
+                                html.Div(
+                                    'User disconnected - Please login to view the success screen again'),
                             ]
                         ),
                         html.Div(
@@ -25,7 +26,8 @@ layout = html.Div(children=[
                             # children=html.A(html.Button('LogOut'), href='/')
                             children=[
                                 html.Br(),
-                                html.Button(id='back-button', children='Go back', n_clicks=0)
+                                html.Button(id='back-button',
+                                            children='Go back', n_clicks=0)
                             ]
                         )
                     ]

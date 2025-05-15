@@ -5,17 +5,26 @@ import dash_bootstrap_components as dbc
 from flask_login import LoginManager, UserMixin
 from flask_sqlalchemy import SQLAlchemy
 import secrets
+from dotenv import load_dotenv
+import os
+
+load_dotenv(override=True)
+user = os.getenv('USER')
+password = os.getenv('PASSWORD')
+host = os.getenv('HOST')
+port = os.getenv('PORT')
+db = os.getenv('DB')
 
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 server = app.server
 app.config.suppress_callback_exceptions = True
-server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://boshlike:Telegraph1265!@localhost:5432/pairs_dash'
-server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 server.config.update(
-    SECRET_KEY=secrets.token_hex(),
-    SQLALCHEMY_ECHO=True
+    SECRET_KEY = secrets.token_hex(),
+    SQLALCHEMY_ECHO = True,
+    SQLALCHEMY_DATABASE_URI = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}',
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 )
 
 db = SQLAlchemy()
