@@ -11,8 +11,8 @@ import os
 load_dotenv(override=True)
 user = os.getenv('USER')
 password = os.getenv('PASSWORD')
-host = os.getenv('HOST')
-port = os.getenv('PORT')
+host = os.getenv('PG_HOST')
+port = os.getenv('PG_PORT')
 db = os.getenv('DB')
 
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -22,7 +22,7 @@ app.config.suppress_callback_exceptions = True
 
 server.config.update(
     SECRET_KEY = secrets.token_hex(),
-    SQLALCHEMY_ECHO = True,
+    SQLALCHEMY_ECHO = False,
     SQLALCHEMY_DATABASE_URI = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}',
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 )

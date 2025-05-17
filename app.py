@@ -3,23 +3,19 @@ import dash_bootstrap_components as dbc
 from dotenv import load_dotenv
 from server import app
 from flask_login import logout_user, current_user
-from views import dashboard, login, login_fd, logout
+from views import dashboard, login, login_fd, logout, index
 
 load_dotenv(override=True)
 
-header = html.Div(
+header = dbc.Container(
     className='header',
     children=html.Div(
-        className='container-width',
-        style={'height': '100%'},
         children=[
-            html.Img(
-                src='assets/dash-logo-stripe.svg',
-                className='logo'
-            ),
-            html.Div(className='links', children=[
-                html.Div(id='user-name', className='link'),
-                html.Div(id='logout', className='link')
+            dbc.Container(className='links', children=[
+                dbc.Row([
+                        dbc.Col(id='user-name'),
+                        dbc.Col(id='logout')
+                        ])
             ])
         ]
     )
@@ -28,12 +24,12 @@ header = html.Div(
 app.layout = html.Div(
     [
         header,
-        html.Div([
-            html.Div(
-                html.Div(id='page-content', className='content'),
-                className='content-container'
+        dbc.Container([
+            dbc.Container(
+                html.Div(id='page-content'),
+                class_name='pt-3 pb-3'
             ),
-        ], className='container-width'),
+        ]),
         dcc.Location(id='url', refresh=False),
     ]
 )
@@ -43,11 +39,10 @@ app.layout = html.Div(
               [Input('url', 'pathname')])
 def display_page(pathname):
     if pathname == '/':
-        return 'Home'
+        return index.layout
     elif pathname == '/login':
         return login.layout
     elif pathname == '/dashboard':
-        # return dashboard.layout
         if current_user.is_authenticated:
             return dashboard.layout
         else:
@@ -68,7 +63,6 @@ def display_page(pathname):
 def cur_user(input1):
     if current_user.is_authenticated:
         return html.Div('Current user: ' + current_user.username)
-        # 'User authenticated' return username in get_id()
     else:
         return ''
 
@@ -78,10 +72,10 @@ def cur_user(input1):
     [Input('page-content', 'children')])
 def user_logout(input1):
     if current_user.is_authenticated:
-        return html.A('Logout', href='/logout')
+        return html.A('Logout', href='/logout', className='btn btn-primary')
     else:
         return ''
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)

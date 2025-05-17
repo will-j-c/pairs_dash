@@ -9,10 +9,8 @@ def check_password(input_password, hashed_password):
     input_pass = input_password.encode('utf-8')
     hashed_pass = hashed_password.encode('utf-8')
     if bcrypt.checkpw(input_pass, hashed_pass):
-        print('password matched')
         return True
     else:
-        print('password not matched')
         return False
 
 layout = html.Div(
@@ -60,7 +58,6 @@ layout = html.Div(
 def success(n_clicks, n_submit_uname, n_submit_pwd, input1, input2):
     user = User.query.filter_by(username=input1).first()
     if user:
-        print('#######ID: ', user.password)
         if check_password(input2, user.password):
             login_user(user)
             return '/dashboard'
