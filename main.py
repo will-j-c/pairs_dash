@@ -21,10 +21,10 @@ VALID_USERNAME_PASSWORD_PAIRS = {
 data = Data()
 config = create_config_dict()
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-auth = dash_auth.BasicAuth(
-    app,
-    VALID_USERNAME_PASSWORD_PAIRS
-)
+# auth = dash_auth.BasicAuth(
+#     app,
+#     VALID_USERNAME_PASSWORD_PAIRS
+# )
 
 server = app.server
 
