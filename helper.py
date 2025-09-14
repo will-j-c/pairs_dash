@@ -83,7 +83,7 @@ def update_memory_store_value(value, data_call, config):
      return df.to_dict('records')
 
 def stop_string(data_call):
-    stop_loss =  data_call.get_collateral_value() * 0.02
+    stop_loss =  data_call.get_collateral_value() * 0.04
     string = '{0:.2f}'.format(-stop_loss)
     return string
 
