@@ -18,6 +18,8 @@ def table(data_call, config):
     df = data_call.get_position_info(config)
     columns = [
         {'name': 'Position', 'id': 'Position'},
+        {'name': 'Entry', 'id': 'Entry'},
+        {'name': 'Entry Side', 'id': 'Entry Side'},
         {'name': 'P&L', 'id': 'P&L'},
         {'name': 'Est. Fee', 'id': 'Est. Fee'},
         {'name': 'Net P&L', 'id': 'Net P&L'},

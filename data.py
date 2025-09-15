@@ -107,15 +107,16 @@ class Data:
         config_df = self._create_config_df(config)
         ticker_df = self._create_ticker_df()
         df = pd.merge(position_df, config_df, left_on='symbol', right_on='value')
-        df.drop(['value', 'variable'], axis=1, inplace=True)
         df = pd.merge(df, ticker_df, left_on='symbol', right_on='symbol')
-        df = df[['side', 'symbol', 'price', 'size', 'position', 'markPrice']]
+        df['entry'] = df.apply(self._calc_entry, axis=1)
+        df['entry_side'] = df.apply(self._calc_side, axis=1)
         df['pnl'] = df.apply(self._calc_pnl, axis=1)
         df['closing_fee'] = df['size'] * df['markPrice'] * 0.05/100
         df['estimated_net_pnl'] = df['pnl'] - df['closing_fee']
-        df = df[['position', 'pnl', 'closing_fee', 'estimated_net_pnl']]
+        df = df[['position','entry', 'entry_side', 'pnl', 'closing_fee', 'estimated_net_pnl']]
         df = df.groupby('position', as_index=False).sum()
-        df.columns = ['Position', 'P&L', 'Est. Fee', 'Net P&L']
+        df['entry_side'] = np.where(df['entry_side'] == 0, 'Short Spread', 'Long spread')
+        df.columns = ['Position', 'Entry', 'Entry Side', 'P&L', 'Est. Fee', 'Net P&L']
         df = df.round(2)
         return df
     
@@ -133,10 +134,9 @@ class Data:
 
     def _create_config_df(self, config):
         df = pd.DataFrame.from_dict(config).T
-        df.drop('beta', inplace=True, axis=1)
         df['position'] = df.index
         df.reset_index(inplace=True, drop=True)
-        df = pd.melt(df, id_vars=['position'], value_vars=['pair_1', 'pair_2'])
+        df = pd.melt(df, id_vars=['position', 'beta'], value_vars=['pair_1', 'pair_2'])
         return df
     
     def _create_ticker_df(self):
@@ -153,6 +153,32 @@ class Data:
         else:
             pnl = cost - current_value
         return pnl
+    
+    def _calc_entry(self, row):
+        if row['variable'] == 'pair_1':
+            if row['side'] == 'long':
+                return -row['price']
+            else:
+                return row['price']
+            
+        if row['variable'] == 'pair_2':
+            if row['side'] == 'long':
+                return -row['beta'] * row['price']
+            else:
+                return row['beta'] * row['price']
+            
+    def _calc_side(self, row):
+        if row['variable'] == 'pair_1':
+            if row['side'] == 'long':
+                return 1
+            else:
+                return 0
+            
+        if row['variable'] == 'pair_2':
+            if row['side'] == 'long':
+                return 0
+            else:
+                return 1
 
     
 if __name__ == '__main__':

@@ -39,7 +39,7 @@ def create_config_dict():
         config_dict[entry[0]] = {
         'pair_1': f'PF_{entry[1]}',
         'pair_2': f'PF_{entry[2]}',
-        'beta': float(entry[4]),
+        'beta': float(entry[3]),
         'high_sigma': int(entry[6]),
         'low_sigma': int(entry[7]),
         'lag': int(entry[8])
