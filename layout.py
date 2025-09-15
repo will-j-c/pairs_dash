@@ -126,7 +126,7 @@ def radio_card(config):
                         list(config.keys()))[0], id='pairs-selection'),
                 ]),
                 dbc.Col([
-                    dcc.RadioItems([72, 144, 216, 288, 360],
+                    dcc.RadioItems([72, 144, 216, 288, 360, 480, 600],
                                    216, id='time-view')
                 ], width=4, className='fs-6')
             ])

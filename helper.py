@@ -18,7 +18,7 @@ def create_entries_list():
 
             # Add the row to the entries
             entries.append(row)
-    entries = sorted(entries, key=lambda entry: int(entry[5]), reverse=True)
+    entries = sorted(entries, key=lambda entry: float(entry[5]), reverse=True)
     return entries
 
 def create_unique_entries_list(entries):

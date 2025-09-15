@@ -49,6 +49,9 @@ app.layout = [dbc.Container(
                 pill('Cash', cash_string(data), 'cash')
             ], lg=2),
             dbc.Col([
+                pill('Pos size', float(cash_string(data))*2, 'pos-size')
+            ], lg=2),
+            dbc.Col([
                 pill('Stop Loss', stop_string(data), 'stop')
             ], lg=2)
             
