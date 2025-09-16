@@ -49,7 +49,7 @@ app.layout = [dbc.Container(
                 pill('Cash', cash_string(data), 'cash')
             ], lg=2),
             dbc.Col([
-                pill('Pos size', float(cash_string(data))*3, 'pos-size')
+                pill('Pos size', round(float(cash_string(data))*3,2), 'pos-size')
             ], lg=2),
             dbc.Col([
                 pill('Stop Loss', stop_string(data), 'stop')
@@ -133,7 +133,7 @@ def update_stop(n_intervals):
     Input('interval-stop', 'n_intervals'),
 )
 def update_pos_size(n_intervals):
-    return float(cash_string(data))*3
+    return round(float(cash_string(data))*3,2)
 
 # Callback for settings
 @callback(

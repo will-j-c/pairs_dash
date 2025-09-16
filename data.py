@@ -117,7 +117,7 @@ class Data:
         df = df.groupby('position', as_index=False).sum()
         df['entry_side'] = np.where(df['entry_side'] == 0, 'Short Spread', 'Long spread')
         df.columns = ['Position', 'Entry', 'Entry Side', 'P&L', 'Est. Fee', 'Net P&L']
-        df = df.round(2)
+        df = df.round(7)
         return df
     
     def get_collateral_value(self):
