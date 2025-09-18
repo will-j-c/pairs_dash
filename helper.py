@@ -98,6 +98,7 @@ def update_spread_fig(df, data_call):
 
     x_axis_labels = list(data_call.create_axis_from_df(df))
     fig = px.line(df, x='time', y='spread', title='spread')
+    fig.add_hline(y=df.iloc[-1]['spread'], line_color='blue', opacity=0.75, line_dash='dash', annotation_text=round(df.iloc[-1]['spread'], 5))
     fig.update_layout(margin=dict(l=20, r=20, t=20, b=20), title=None, font_family='Arial, Helvetica, sans-serif')
     fig.update_traces(line_color='blue', line_width=2)
     fig.update_xaxes(title='Spread', fixedrange=True, range=[x_axis_labels[0], x_axis_labels[-1]])
