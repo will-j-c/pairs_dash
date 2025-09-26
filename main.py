@@ -66,7 +66,9 @@ app.layout = [dbc.Container(
 ),
 
 dcc.Interval(id='interval-graph', interval=20000, n_intervals=0),
-dcc.Interval(id='interval-stop', interval=5000, n_intervals=0)]
+dcc.Interval(id='interval-stop', interval=5000, n_intervals=0),
+dcc.Interval(id='interval-cash', interval=7000, n_intervals=0),
+dcc.Interval(id='interval-pos', interval=10000, n_intervals=0)]
 
 
 # Callback fro the memory store
@@ -122,7 +124,7 @@ def update_stop(n_intervals):
 # Callback for cash
 @callback(
     Output('cash', 'children'),
-    Input('interval-stop', 'n_intervals'),
+    Input('interval-cash', 'n_intervals'),
 )
 def update_stop(n_intervals):
     return cash_string(data)
@@ -130,7 +132,7 @@ def update_stop(n_intervals):
 # Callback for pos setting
 @callback(
     Output('pos-size', 'children'),
-    Input('interval-stop', 'n_intervals'),
+    Input('interval-pos', 'n_intervals'),
 )
 def update_pos_size(n_intervals):
     return round(float(cash_string(data))*3,2)
