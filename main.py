@@ -21,10 +21,6 @@ VALID_USERNAME_PASSWORD_PAIRS = {
 data = Data()
 config = create_config_dict()
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-# auth = dash_auth.BasicAuth(
-#     app,
-#     VALID_USERNAME_PASSWORD_PAIRS
-# )
 
 server = app.server
 
@@ -49,9 +45,6 @@ app.layout = [dbc.Container(
                 pill('Cash', cash_string(data), 'cash')
             ], lg=2),
             dbc.Col([
-                pill('Pos size', round(float(cash_string(data))*3,2), 'pos-size')
-            ], lg=2),
-            dbc.Col([
                 pill('Stop Loss', stop_string(data), 'stop')
             ], lg=2)
             
@@ -67,8 +60,7 @@ app.layout = [dbc.Container(
 
 dcc.Interval(id='interval-graph', interval=20000, n_intervals=0),
 dcc.Interval(id='interval-stop', interval=5000, n_intervals=0),
-dcc.Interval(id='interval-cash', interval=7000, n_intervals=0),
-dcc.Interval(id='interval-pos', interval=10000, n_intervals=0)]
+dcc.Interval(id='interval-cash', interval=7000, n_intervals=0)]
 
 
 # Callback fro the memory store
@@ -129,13 +121,6 @@ def update_stop(n_intervals):
 def update_stop(n_intervals):
     return cash_string(data)
 
-# Callback for pos setting
-@callback(
-    Output('pos-size', 'children'),
-    Input('interval-pos', 'n_intervals'),
-)
-def update_pos_size(n_intervals):
-    return round(float(cash_string(data))*3,2)
 
 # Callback for settings
 @callback(

@@ -157,15 +157,15 @@ class Data:
     def _calc_entry(self, row):
         if row['variable'] == 'pair_1':
             if row['side'] == 'long':
-                return -row['price']
-            else:
                 return row['price']
+            else:
+                return -row['price']
             
         if row['variable'] == 'pair_2':
             if row['side'] == 'long':
-                return -row['beta'] * row['price']
-            else:
                 return row['beta'] * row['price']
+            else:
+                return -row['beta'] * row['price']
             
     def _calc_side(self, row):
         if row['variable'] == 'pair_1':

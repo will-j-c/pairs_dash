@@ -40,8 +40,8 @@ def create_config_dict():
         'pair_1': f'PF_{entry[1]}',
         'pair_2': f'PF_{entry[2]}',
         'beta': float(entry[3]),
-        'high_sigma': int(entry[6]),
-        'low_sigma': int(entry[7]),
+        'high_sigma': float(entry[6]),
+        'low_sigma': float(entry[7]),
         'lag': int(entry[8])
         }
     return config_dict
